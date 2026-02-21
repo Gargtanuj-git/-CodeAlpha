@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishShield Pro | Advanced Enterprise Defense</title>
+    <style>
+        /* ================= CSS VARIABLES & THEMING ================= */
+        :root {
+            --bg-color: #f0f4f8;
+            --bg-pattern: #e2e8f0;
+            --sidebar-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.5);
+            --accent: #06b6d4;
+            --danger: #ef4444;
+            --success: #10b981;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(255, 255, 255, 0.9);
+            --glass-blur: blur(20px);
+            --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #0b1120;
+            --bg-pattern: #1e293b;
+            --sidebar-bg: rgba(15, 23, 42, 0.8);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --primary: #60a5fa;
+            --primary-glow: rgba(96, 165, 250, 0.5);
+            --accent: #22d3ee;
+            --danger: #f43f5e;
+            --success: #34d399;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* ================= RESET & ANIMATIONS ================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; overflow-x: hidden; transition: background 0.3s ease; }
+        
+        /* Cyber Grid Background */
+        body::before {
+            content: "";
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(var(--bg-pattern) 1px, transparent 1px), linear-gradient(90deg, var(--bg-pattern) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.2; z-index: -1;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+        }
+
+        /* Lottie-style Floating Animation */
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-15px); } }
+        @keyframes pulse-glow { 0%, 100% { filter: drop-shadow(0 0 5px var(--primary-glow)); } 50% { filter: drop-shadow(0 0 20px var(--primary-glow)); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ================= LAYOUT ================= */
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--sidebar-bg);
+            backdrop-filter: var(--glass-blur);
+            border-right: 1px solid var(--card-border);
+            height: 100vh;
+            position: sticky; top: 0;
+            padding: 2rem;
+            display: flex; flex-direction: column;
+            z-index: 100;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 0.8rem; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .nav-link {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 1rem; margin-bottom: 0.5rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-link:hover, .nav-link.active { background: linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent); color: var(--primary); border-left: 4px solid var(--primary); }
+        .nav-link svg { width: 20px; height: 20px; }
+
+        /* Main Content */
+        .main-content { flex: 1; padding: 4rem; max-width: 1600px; margin: 0 auto; width: 100%; }
+        section { margin-bottom: 8rem; opacity: 0; animation: slideIn 0.8s forwards; }
+        section:nth-child(2) { animation-delay: 0.1s; }
+        section:nth-child(3) { animation-delay: 0.2s; }
+
+        h1 { font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 2rem; margin-bottom: 1.5rem; border-left: 5px solid var(--primary); padding-left: 1rem; }
+        
+        /* ================= CARDS & INTERACTIVE ================= */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px -5px rgba(0,0,0,0.15); border-color: var(--primary); }
+        .glass-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: linear-gradient(to bottom, var(--primary), var(--accent)); opacity: 0; transition: opacity 0.3s; }
+        .glass-card:hover::before { opacity: 1; }
+
+        .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 2rem; }
+
+        /* Interactive Elements */
+        .email-client { border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); background: #fff; color: #333; overflow: hidden; border: 1px solid #e2e8f0; }
+        .red-flag { border-bottom: 2px dashed var(--danger); background: rgba(239, 68, 68, 0.1); cursor: help; position: relative; transition: all 0.2s; }
+        .red-flag:hover { background: var(--danger); color: white; }
+        
+        .tooltip { position: absolute; background: #1e293b; color: white; padding: 1rem; border-radius: 8px; font-size: 0.9rem; bottom: 120%; left: 50%; transform: translateX(-50%); width: 250px; opacity: 0; visibility: hidden; transition: all 0.2s; box-shadow: 0 10px 15px rgba(0,0,0,0.2); z-index: 10; pointer-events: none; }
+        .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top-color: #1e293b; }
+        .red-flag:hover .tooltip { opacity: 1; visibility: visible; bottom: 110%; }
+
+        /* Animation Container */
+        .anim-icon { width: 80px; height: 80px; margin-bottom: 1.5rem; animation: float 6s ease-in-out infinite; }
+        .anim-icon path { fill: var(--primary); }
+        .anim-icon circle { fill: var(--accent); }
+
+        /* Quiz UI */
+        .quiz-wrapper { max-width: 800px; margin: 0 auto; text-align: center; }
+        .option-btn {
+            display: block; width: 100%; padding: 1.25rem; margin-bottom: 1rem;
+            background: var(--card-bg); border: 2px solid transparent;
+            border-radius: 12px; font-size: 1.1rem; font-weight: 500;
+            color: var(--text-main); cursor: pointer; transition: all 0.2s;
+            box-shadow: var(--shadow);
+        }
+        .option-btn:hover { border-color: var(--primary); transform: translateX(10px); }
+        .option-btn.correct { background: rgba(16, 185, 129, 0.1); border-color: var(--success); color: var(--success); }
+        .option-btn.wrong { background: rgba(239, 68, 68, 0.1); border-color: var(--danger); color: var(--danger); }
+
+        /* Mobile Toggle */
+        .menu-toggle { display: none; position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.5); z-index: 200; font-size: 1.5rem; cursor: pointer; transition: transform 0.2s; }
+        .menu-toggle:active { transform: scale(0.9); }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content { padding: 2rem; }
+        }
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { position: fixed; left: -100%; width: 85%; height: 100%; z-index: 1002; background: var(--bg-color); }
+            .sidebar.open { left: 0; box-shadow: 0 0 100px rgba(0,0,0,0.5); }
+            .main-content { padding: 5rem 1.5rem 2rem 1.5rem; }
+            .menu-toggle { display: block; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <nav class="sidebar" id="sidebar">
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                PhishShield
+            </div>
+            <a href="#intro" class="nav-link active" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg> Overview</a>
+            <a href="#vectors" class="nav-link" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg> Attack Vectors</a>
+            <a href="#bec-fraud" class="nav-link" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> CEO Fraud (BEC)</a>
+            <a href="#lab-email" class="nav-link" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path></svg> Email Lab</a>
+            <a href="#employers" class="nav-link" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg> Employer Strategy</a>
+            <a href="#exam" class="nav-link" style="color: var(--accent);" onclick="closeSidebar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> Final Exam</a>
+            
+            <div style="margin-top: auto; padding: 1rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--card-border);">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.9rem; font-weight:600;">Dark Mode</span>
+                    <button id="themeToggle" style="background:var(--primary); width:40px; height:22px; border-radius:20px; border:none; position:relative; cursor:pointer;">
+                        <div id="toggleKnob" style="width:16px; height:16px; background:white; border-radius:50%; position:absolute; top:3px; left:3px; transition:0.3s;"></div>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- Intro -->
+            <section id="intro">
+                <div class="glass-card" style="text-align: center; border-top: 5px solid var(--primary);">
+                    <!-- Custom SVG Animation -->
+                    <svg class="anim-icon" viewBox="0 0 24 24">
+                        <path d="M12 2L1 21h22L12 2zm0 3.99L19.53 19H4.47L12 5.99zM11 16h2v2h-2zm0-6h2v4h-2z" opacity="0.8"/>
+                        <circle cx="12" cy="12" r="8" fill="none" stroke="var(--accent)" stroke-width="0.5" style="animation: pulse-glow 3s infinite;"/>
+                    </svg>
+                    <h1>Phishing Defense Platform</h1>
+                    <p style="font-size: 1.2rem; max-width: 700px; margin: 0 auto;">Comprehensive training for individuals and employers. Learn to recognize, prevent, and report sophisticated cyber attacks.</p>
+                </div>
+                
+                <div class="grid-2" style="margin-top: 2rem;">
+                    <div class="glass-card">
+                        <h3>Phishing vs. Spear Phishing</h3>
+                        <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: center;">
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--primary);">Phishing (Quantity)</h4>
+                                <p style="font-size: 0.9rem;">Broad, untargeted emails sent to thousands. Generic greetings like "Dear Customer". Low success rate per email, but high volume.</p>
+                            </div>
+                            <div style="width: 1px; height: 80px; background: var(--text-muted); opacity: 0.3;"></div>
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--accent);">Spear Phishing (Quality)</h4>
+                                <p style="font-size: 0.9rem;">Highly targeted. Attackers research you on social media. Uses your name, job title, and specific details. Much harder to spot.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <h3>The Human Factor</h3>
+                        <p>According to the Ponemon Institute, human error accounts for nearly <strong>30%</strong> of worldwide data breaches.</p>
+                        <p>Top triggers for clicking:</p>
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <span style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">Curiosity 13.7%</span>
+                            <span style="background: var(--danger); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">Fear 13.4%</span>
+                            <span style="background: var(--warning); color: black; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem;">Urgency 13.2%</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Attack Vectors -->
+            <section id="vectors">
+                <h2>Module 1: Expanded Attack Vectors</h2>
+                <div class="grid-3">
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">🚜 Pharming</div>
+                        <p><strong>"Phishing without the bait."</strong></p>
+                        <p>Redirects website traffic to a fake site using malicious code (DNS poisoning). You type <em>bank.com</em>, but land on a fake site without clicking a link.</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">🔍 Search Engine Phishing</div>
+                        <p>Attackers create fake websites offering "deals" or "low interest rates" and get them indexed on Google/Bing. Users trust them because they appear in search results.</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">📞 Vishing & Smishing</div>
+                        <p><strong>Voice & SMS Phishing.</strong></p>
+                        <p><em>Example:</em> "Netflix: We were unable to validate your billing info. Reply within 48h to avoid suspension."</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">🎁 Refund Scams</div>
+                        <p>The allure of free money. "You have an outstanding vehicle tax refund of £92.31." These play on greed and curiosity.</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">🐋 Whaling</div>
+                        <p>Targeting C-suite executives (CEO, CFO). These emails often threaten legal action, bankruptcy, or reputational damage to force a reaction.</p>
+                    </div>
+                    <div class="glass-card">
+                        <div style="color: var(--accent); font-size: 1.5rem; margin-bottom: 0.5rem;">👯 Clone Phishing</div>
+                        <p>Resending a legitimate email you previously received, but swapping the attachment or link with malware, claiming it's an "Updated Version".</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- BEC / CEO Fraud -->
+            <section id="bec-fraud">
+                <h2>Module 2: Fake President Fraud (BEC)</h2>
+                <div class="glass-card" style="background: linear-gradient(135deg, var(--card-bg), rgba(239, 68, 68, 0.05));">
+                    <p style="font-size: 1.1rem;">A criminal poses as a high-level executive (CEO/CFO) to convince an employee to wire money. This is a 4-step psychological attack:</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+                        <div style="text-align: center;">
+                            <div style="width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.2rem;">1</div>
+                            <h4>The Contact</h4>
+                            <p style="font-size: 0.9rem;">Attacker emails from a spoofed domain (e.g., <em>ceo@company-corp.com</em> instead of <em>company.com</em>) or a "personal" email.</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 50px; height: 50px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.2rem;">2</div>
+                            <h4>The Request</h4>
+                            <p style="font-size: 0.9rem;">Asks for a wire transfer for a "secret acquisition", "vendor payment", or "urgent debt".</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 50px; height: 50px; background: var(--danger); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.2rem;">3</div>
+                            <h4>The Pressure</h4>
+                            <p style="font-size: 0.9rem;">Uses <strong>Authority</strong> ("Do this now"), <strong>Secrecy</strong> ("Don't tell anyone yet"), and <strong>Time Pressure</strong>.</p>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.2rem;">4</div>
+                            <h4>The Transfer</h4>
+                            <p style="font-size: 0.9rem;">Employee bypasses protocol due to fear/urgency and wires funds to a foreign account.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Email Lab -->
+            <section id="lab-email">
+                <h2>Module 3: Spotting the Attack</h2>
+                
+                <div class="grid-2" style="margin-bottom: 2rem;">
+                    <div class="glass-card">
+                        <h3>The Checklist</h3>
+                        <ul style="list-style: none; padding: 0;">
+                            <li style="margin-bottom: 0.8rem;">⏰ <strong>Time Sent:</strong> Was this business email sent at 3 AM?</li>
+                            <li style="margin-bottom: 0.8rem;">👤 <strong>Sender:</strong> Do I know them? Does the "From" address match the name?</li>
+                            <li style="margin-bottom: 0.8rem;">🔗 <strong>URLs:</strong> Hover over them. Do they match the company? (e.g., <em>bestbuy1.co.uk</em> vs <em>bestbuy.co.uk</em>)</li>
+                            <li style="margin-bottom: 0.8rem;">📝 <strong>Grammar:</strong> Legitimate companies rarely have glaring spelling errors.</li>
+                            <li style="margin-bottom: 0.8rem;">⚠️ <strong>Subject:</strong> Is it vague? ("Security Alert", "Invoice") or Aggressive?</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="email-client">
+                        <div style="background: #333; color: white; padding: 0.5rem 1rem; font-size: 0.8rem; letter-spacing: 1px;">INBOX - SUSPICIOUS MESSAGE</div>
+                        <div class="email-header">
+                            <p><strong>From:</strong> <span class="red-flag">HR Department &lt;hr-update@micros0ft-services.net&gt;<span class="tooltip"><strong>Spoofed Domain:</strong><br>Real Microsoft emails don't come from "micros0ft-services.net". Note the zero.</span></span></p>
+                            <p><strong>Subject:</strong> <span class="red-flag">FINAL NOTICE: Payroll Suspension<span class="tooltip"><strong>Scare Tactics:</strong><br>Subject line designed to cause panic and urgency.</span></span></p>
+                        </div>
+                        <div class="email-body">
+                            <p><span class="red-flag">Dear Employee,<span class="tooltip"><strong>Generic Greeting:</strong><br>HR knows your name. They wouldn't use "Dear Employee".</span></span></p>
+                            <p>We are updating our payroll system. Your direct deposit information is out of date.</p>
+                            <p>To ensure you get paid this Friday, you <strong style="color: red;">MUST</strong> login immediately.</p>
+                            <br>
+                            <p style="text-align: center;">
+                                <a href="#" class="red-flag" style="background: #0078d4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">Update Details Now<span class="tooltip"><strong>Malicious Link:</strong><br>Hovering reveals "http://bit.ly/steal-login". Never click shortened links in emails.</span></a>
+                            </p>
+                            <br>
+                            <p>Failure to comply will result in a delay of your salary.</p>
+                            <p>Regards,<br>The Management</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Employer Strategy -->
+            <section id="employers">
+                <h2>Module 4: Employer Strategies</h2>
+                <div class="grid-3">
+                    <div class="glass-card" style="border-top: 4px solid var(--success);">
+                        <h3>Network Segmentation</h3>
+                        <p>Keep sensitive information separate. If one employee falls for a phishing email, the hacker shouldn't be able to access the entire network.</p>
+                    </div>
+                    <div class="glass-card" style="border-top: 4px solid var(--success);">
+                        <h3>Pseudonymisation</h3>
+                        <p>Encrypt employee and customer data. Even if a hacker steals the data, they will have a hard time making use of it.</p>
+                    </div>
+                    <div class="glass-card" style="border-top: 4px solid var(--success);">
+                        <h3>Verify Out-of-Band</h3>
+                        <p>If an email asks for money, call the sender on a known number (not the one in the email) to verify the request.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Final Exam -->
+            <section id="exam">
+                <div class="glass-card" style="text-align: center;">
+                    <h2>Final Certification Exam</h2>
+                    <p style="margin-bottom: 2rem;">20 Randomized Questions | 80% to Pass</p>
+                    
+                    <div class="quiz-wrapper" id="quiz-ui">
+                        <div id="quiz-start">
+                            <button class="option-btn" style="background: var(--primary); color: white;" onclick="startQuiz()">Start Exam</button>
+                        </div>
+                        
+                        <div id="quiz-active" style="display: none; text-align: left;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: var(--text-muted);">
+                                <span id="q-progress">Question 1/20</span>
+                                <span id="q-score">Score: 0</span>
+                            </div>
+                            <h3 id="q-text" style="margin-bottom: 2rem;">Question goes here?</h3>
+                            <div id="q-options"></div>
+                            <div id="q-feedback" style="margin-top: 1.5rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+                            <button id="btn-next" class="option-btn" style="background: var(--primary); color: white; margin-top: 1.5rem; width: auto; padding: 0.8rem 2rem; display: none;" onclick="nextQuestion()">Next Question</button>
+                        </div>
+
+                        <div id="quiz-end" style="display: none;">
+                            <h3 id="final-msg">Exam Complete</h3>
+                            <div id="final-score" style="font-size: 3rem; font-weight: 800; margin: 1rem 0;"></div>
+                            <div id="cert-box" style="display: none; padding: 2rem; border: 4px double var(--accent); margin-top: 2rem; background: rgba(255,255,255,0.1);">
+                                <h2 style="color: var(--accent);">CERTIFICATE OF COMPLETION</h2>
+                                <p>Awarded to User for passing the Phishing Defense Platform Exam</p>
+                                <p id="cert-date" style="font-family: monospace; margin-top: 1rem;"></p>
+                            </div>
+                            <button class="option-btn" style="background: var(--primary); color: white; margin-top: 2rem;" onclick="startQuiz()">Retake Exam</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+        
+        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    </div>
+
+    <script>
+        // ================= THEME LOGIC =================
+        const toggleBtn = document.getElementById('themeToggle');
+        const knob = document.getElementById('toggleKnob');
+        let isDark = false;
+
+        toggleBtn.addEventListener('click', () => {
+            isDark = !isDark;
+            document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
+            knob.style.transform = isDark ? 'translateX(18px)' : 'translateX(0)';
+        });
+
+        // ================= SIDEBAR LOGIC =================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+        }
+
+        // ================= QUIZ ENGINE =================
+        const questions = [
+            { q: "What is 'Pharming'?", options: ["Phishing aimed at farmers", "Redirecting web traffic to fake sites via malware/DNS poisoning", "Sending spam emails", "Farming for bitcoins"], correct: 1, explanation: "Pharming is 'phishing without the bait', redirecting you even if you type the correct address." },
+            { q: "In 'Fake President Fraud', what is usually the final step?", options: ["The employee gets promoted", "The employee wires funds to a foreign account", "The President calls the bank", "The hacker deletes the email"], correct: 1, explanation: "The goal is to trick the employee into wiring company funds." },
+            { q: "What is 'Vishing'?", options: ["Video Phishing", "Voice Phishing (Phone)", "Virtual Phishing", "Visual Phishing"], correct: 1, explanation: "Vishing uses phone calls to extract information." },
+            { q: "Which is a sign of a phishing email?", options: ["It addresses you by your full name", "It comes from a known domain", "It uses generic greetings like 'Dear Customer'", "It has no links"], correct: 2, explanation: "Generic greetings often indicate a mass-sent phishing email." },
+            { q: "Why do hackers target 'Search Engines'?", options: ["To improve SEO", "To index fake sites that offer deals/discounts", "To break Google", "To find answers"], correct: 1, explanation: "Users trust search results. Hackers create fake 'deal' sites to harvest data." },
+            { q: "What is 'Pseudonymisation'?", options: ["Using a fake name online", "A data protection method replacing IDs with artificial identifiers", "Hiding your IP address", "Phishing via social media"], correct: 1, explanation: "It helps protect employee/customer data in case of a breach." },
+            { q: "If you receive an urgent email from the CEO asking for money, what should you do?", options: ["Reply immediately", "Wire the money", "Verify 'Out-of-Band' (Call them)", "Delete it"], correct: 2, explanation: "Always verify through a different communication channel." },
+            { q: "What is 'Whaling'?", options: ["Targeting low-level staff", "Targeting C-suite executives", "Phishing for large files", "None of the above"], correct: 1, explanation: "Whaling targets the 'big fish' or executives." },
+            { q: "What is a 'Keylogger'?", options: ["A secure password tool", "Malware that records your keystrokes", "A physical key", "Login software"], correct: 1, explanation: "Keyloggers record everything you type, including passwords." },
+            { q: "True or False: HTTPS means a site is legitimate.", options: ["True", "False"], correct: 1, explanation: "False. It only means the connection is encrypted. Phishing sites use HTTPS too." },
+            { q: "What is 'Smishing'?", options: ["SMS Phishing", "Small Phishing", "Smart Phishing", "Smooth Phishing"], correct: 0, explanation: "Smishing is phishing via text message." },
+            { q: "What is 'Clone Phishing'?", options: ["Copying a website", "Resending a legit email with a malicious attachment", "Hacking a clone", "Using 2 accounts"], correct: 1, explanation: "Attackers copy a real email you received but replace the link/file." },
+            { q: "Which emotion do phishers exploit most often?", options: ["Happiness", "Urgency/Fear", "Sadness", "Calm"], correct: 1, explanation: "Urgency stops you from thinking critically." },
+            { q: "What time are business phishing emails least likely to be sent?", options: ["9 AM", "2 PM", "3 AM", "10 AM"], correct: 2, explanation: "3 AM is suspicious for a standard business email." },
+            { q: "What is 'Network Segmentation'?", options: ["Splitting the bill", "Keeping sensitive systems separate from the main network", "Cutting cables", "Using WiFi"], correct: 1, explanation: "It prevents a hacker from accessing everything if one part is breached." },
+            { q: "What is the 'From' field spoofing?", options: ["Hiding the sender", "Making the email look like it came from a trusted source", "Using a nickname", "Encrypting the name"], correct: 1, explanation: "Attackers mimic legitimate domains or names." },
+            { q: "What is a 'Drive-by Download'?", options: ["Downloading in a car", "Malware installing just by visiting a site", "Downloading drivers", "None of above"], correct: 1, explanation: "It happens silently in the background." },
+            { q: "What is 'Social Engineering'?", options: ["Building social apps", "Manipulating people into giving up info", "Engineering society", "Social media marketing"], correct: 1, explanation: "Phishing relies on hacking humans, not just machines." },
+            { q: "What should you do if you suspect a phishing email?", options: ["Click the link", "Forward to everyone", "Report to IT/Security", "Reply to ask if it's real"], correct: 2, explanation: "Report it so IT can block it for everyone." },
+            { q: "What is 'Session Hijacking'?", options: ["Stealing a laptop", "Taking over a user's web session/cookie", "Hijacking a meeting", "Stealing WiFi"], correct: 1, explanation: "Allows attackers to access accounts without a password." }
+        ];
+
+        let quizState = { current: 0, score: 0, activeQs: [], answered: false };
+
+        function startQuiz() {
+            quizState.activeQs = [...questions].sort(() => 0.5 - Math.random());
+            quizState.current = 0;
+            quizState.score = 0;
+            document.getElementById('quiz-start').style.display = 'none';
+            document.getElementById('quiz-end').style.display = 'none';
+            document.getElementById('quiz-active').style.display = 'block';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            quizState.answered = false;
+            const q = quizState.activeQs[quizState.current];
+            document.getElementById('q-text').innerText = q.q;
+            document.getElementById('q-progress').innerText = `Question ${quizState.current + 1}/${quizState.activeQs.length}`;
+            document.getElementById('q-score').innerText = `Score: ${quizState.score}`;
+            document.getElementById('q-feedback').style.display = 'none';
+            document.getElementById('btn-next').style.display = 'none';
+            
+            const optsDiv = document.getElementById('q-options');
+            optsDiv.innerHTML = '';
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx, btn);
+                optsDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx, btn) {
+            if (quizState.answered) return;
+            quizState.answered = true;
+            
+            const q = quizState.activeQs[quizState.current];
+            const feedback = document.getElementById('q-feedback');
+            
+            if (idx === q.correct) {
+                quizState.score++;
+                btn.classList.add('correct');
+                feedback.innerHTML = `<strong>Correct!</strong> ${q.explanation}`;
+                feedback.style.background = 'rgba(16, 185, 129, 0.1)';
+                feedback.style.color = 'var(--success)';
+            } else {
+                btn.classList.add('wrong');
+                // Highlight correct
+                document.querySelectorAll('.option-btn')[q.correct].classList.add('correct');
+                feedback.innerHTML = `<strong>Incorrect.</strong> ${q.explanation}`;
+                feedback.style.background = 'rgba(239, 68, 68, 0.1)';
+                feedback.style.color = 'var(--danger)';
+            }
+            feedback.style.display = 'block';
+            document.getElementById('btn-next').style.display = 'inline-block';
+            document.getElementById('q-score').innerText = `Score: ${quizState.score}`;
+        }
+
+        function nextQuestion() {
+            quizState.current++;
+            if (quizState.current < quizState.activeQs.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            document.getElementById('quiz-active').style.display = 'none';
+            document.getElementById('quiz-end').style.display = 'block';
+            const pct = Math.round((quizState.score / quizState.activeQs.length) * 100);
+            document.getElementById('final-score').innerText = `${pct}%`;
+            
+            if (pct >= 80) {
+                document.getElementById('cert-box').style.display = 'block';
+                document.getElementById('cert-date').innerText = new Date().toLocaleDateString();
+                document.getElementById('final-score').style.color = 'var(--success)';
+            } else {
+                document.getElementById('cert-box').style.display = 'none';
+                document.getElementById('final-score').style.color = 'var(--danger)';
+                document.getElementById('final-msg').innerText = "Keep Training!";
+            }
+        }
+    </script>
+</body>
+</html>
